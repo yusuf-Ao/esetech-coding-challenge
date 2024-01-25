@@ -1,9 +1,10 @@
-import React, { useReducer } from 'react';
+import { default as React, useReducer } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { authLogin } from '../../state/actions/auth.actions';
+import { authSignup } from '../../state/actions/auth.actions';
+import { toast } from 'react-toastify';
 
-const Login = () => {
+const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -23,7 +24,7 @@ const Login = () => {
 
     if (!formData.email || !formData.password)
       return toast.error('All fields are required');
-    dispatch(authLogin({ formData, toast, navigate }));
+    dispatch(authSignup({ formData, toast, navigate }));
   };
 
   return (
@@ -33,7 +34,7 @@ const Login = () => {
           <h1 className='text-[16px] md:text-[26px]'>
             Try Esetech Collaborative note &nbsp;
             <span className='text-primary-light text-[20px] md:text-[32px] relative'>
-              Login
+              Signup
               <span className='absolute bottom-0 left-0 w-[20px] md:w-[80px] border-b-2 border-primary-light'></span>
             </span>
           </h1>
@@ -64,14 +65,14 @@ const Login = () => {
               type='submit'
               className='mt-4 w-full bg-primary text-white py-2 px-6 rounded-md hover:bg-gradient-to-r hover:from-primary-light hover:to-primary'
             >
-              Login
+              Signup
             </button>
 
             <div className='flex justify-center w-full text-gray-light text-[12px]'>
               <p>
-                Haven't registered yet?
-                <Link to='/signup' className='text-primary'>
-                  &nbsp; Register now &nbsp;
+                Already have an account?
+                <Link to='/' className='text-primary'>
+                  &nbsp; Login &nbsp;
                 </Link>
               </p>
             </div>
@@ -82,4 +83,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
