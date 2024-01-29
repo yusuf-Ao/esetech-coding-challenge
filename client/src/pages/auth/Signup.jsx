@@ -1,8 +1,8 @@
-import { default as React, useReducer } from 'react';
+import { default as React, useReducer, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { authSignup } from '../../state/actions/auth.actions';
 import { toast } from 'react-toastify';
+import { authSignup } from '../../state/actions/auth.actions';
 
 const Signup = () => {
   const dispatch = useDispatch();
@@ -14,6 +14,35 @@ const Signup = () => {
     },
     { email: '', password: '', showPassword: false }
   );
+
+  const [validations, setValidations] = useState({
+    hasNumber: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasSpecialCharacter: false,
+    isLengthValid: false,
+  });
+
+  const handlePasswordChange = (e) => {
+    var newPassword = e.target.value.trim();
+    handleChange(e);
+
+    // Regular expressions for validation
+    const hasNumber = /[0-9]/.test(newPassword);
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasSpecialCharacter = /[^A-Za-z0-9]/.test(newPassword);
+    const isLengthValid = newPassword.length >= 8;
+
+    // Update state based on validation
+    setValidations({
+      hasNumber,
+      hasUppercase,
+      hasLowercase,
+      hasSpecialCharacter,
+      isLengthValid,
+    });
+  };
 
   const handleChange = (e) => {
     updateFormData({ [e.target.name]: e.target.value.trim() });
@@ -56,8 +85,47 @@ const Signup = () => {
               name='password'
               placeholder='Password'
               className='border border-gray-300 placeholder:text-[12px] text-[12px] rounded w-full h-5 px-5 py-5 mt-2 hover:outline-none focus:outline-none focus:border-gray-600 focus:ring-blue '
-              onChange={(e) => handleChange(e)}
+              onChange={handlePasswordChange}
             />
+          </div>
+
+          <div>
+            <p className='text-[11px]'>Password must include at least:</p>
+            <ul className='text-[11px] list-disc pl-4 text-red-500'>
+              <li
+                style={{ color: validations.hasNumber ? 'green' : 'inherit' }}
+              >
+                A number
+              </li>
+              <li
+                style={{
+                  color: validations.hasUppercase ? 'green' : 'inherit',
+                }}
+              >
+                An uppercase character
+              </li>
+              <li
+                style={{
+                  color: validations.hasLowercase ? 'green' : 'inherit',
+                }}
+              >
+                A lowercase character
+              </li>
+              <li
+                style={{
+                  color: validations.hasSpecialCharacter ? 'green' : 'inherit',
+                }}
+              >
+                A special character
+              </li>
+              <li
+                style={{
+                  color: validations.isLengthValid ? 'green' : 'inherit',
+                }}
+              >
+                8 characters in length
+              </li>
+            </ul>
           </div>
 
           <div className='flex flex-col justify-between items-center space-y-5'>
@@ -71,7 +139,7 @@ const Signup = () => {
             <div className='flex justify-center w-full text-gray-light text-[12px]'>
               <p>
                 Already have an account?
-                <Link to='/' className='text-primary'>
+                <Link to='/login' className='text-primary'>
                   &nbsp; Login &nbsp;
                 </Link>
               </p>

@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
   Res,
   UseGuards,
@@ -150,6 +151,37 @@ export class NoteController {
       return res.status(200).json(customResponse);
     } catch (error) {
       this.logger.error(`Unable to delete notes`, error.message);
+      customResponse.success = false;
+      customResponse.message = error.message;
+      customResponse.statusCode = 417;
+      return res.status(417).json(customResponse);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/:noteId/add-collaborator')
+  async addCollaborator(
+    @Res() res: Response,
+    @Request() req,
+    @Param('noteId') noteId: number,
+    @Query('collaboratorEmail') collaboratorEmail: string,
+    @GetUser() user,
+  ) {
+    const customResponse = new CustomResponseDto();
+    try {
+      customResponse.message = 'Collaborator Added success!';
+      customResponse.statusCode = 200;
+      customResponse.success = true;
+      console.log(collaboratorEmail);
+      customResponse.data = await this.noteService.addCollaboratorsToNote(
+        noteId,
+        collaboratorEmail,
+        user,
+      );
+      this.logger.log(`Adding collaborator`);
+      return res.status(200).json(customResponse);
+    } catch (error) {
+      this.logger.error(`Unable to add collaborator`, error.message);
       customResponse.success = false;
       customResponse.message = error.message;
       customResponse.statusCode = 417;

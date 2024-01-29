@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Note } from '../../../shared/entity/note.entity';
 import { User } from '../../../shared/entity/user.entity';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class NoteService {
@@ -149,7 +149,7 @@ export class NoteService {
 
   async addCollaboratorsToNote(
     noteId: number,
-    collaboratorId: number,
+    collaboratorEmail: string,
     userPayload: any,
   ): Promise<Note> {
     const loggedInUser = await this.getUserByID(userPayload.subject);
@@ -170,8 +170,18 @@ export class NoteService {
       throw new Error(msg);
     }
 
+    //check if collaborator exists by email
+    console.log(collaboratorEmail);
+    const collaborator = await this.getUserByEmail(collaboratorEmail);
+    console.log(collaborator);
+
+    if (!collaborator) {
+      const msg = 'User not found with the given email';
+      this.logger.error(msg);
+      throw new Error(msg);
+    }
+
     try {
-      const collaborator = await this.getUserByID(collaboratorId);
       note.collaborators.push(collaborator);
       const savedNote = await this.noteRepository.save(note);
 
@@ -199,10 +209,14 @@ export class NoteService {
       throw new Error(msg);
     }
 
-    const notes = await this.noteRepository.find({
+    const options: FindManyOptions<Note> = {
       where: { owner: { id: loggedInUser.id } },
       relations: ['collaborators', 'owner', 'last_edited_by'],
-    });
+    };
+
+    options.order = { updated_at: 'DESC' };
+
+    const notes = await this.noteRepository.find(options);
 
     //remove sensitive data from response
     notes.forEach((note) => {
@@ -226,10 +240,14 @@ export class NoteService {
       throw new Error(msg);
     }
 
-    const notes = await this.noteRepository.find({
+    const options: FindManyOptions<Note> = {
       where: { collaborators: { id: loggedInUser.id } },
       relations: ['collaborators', 'owner', 'last_edited_by'],
-    });
+    };
+
+    options.order = { updated_at: 'DESC' };
+
+    const notes = await this.noteRepository.find(options);
 
     //remove sensitive data from response
     notes.forEach((note) => {

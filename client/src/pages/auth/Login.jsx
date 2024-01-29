@@ -2,6 +2,7 @@ import React, { useReducer } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { authLogin } from '../../state/actions/auth.actions';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -11,7 +12,7 @@ const Login = () => {
     (prev, next) => {
       return { ...prev, ...next };
     },
-    { email: '', password: '', showPassword: false }
+    { username: '', password: '', showPassword: false }
   );
 
   const handleChange = (e) => {
@@ -21,7 +22,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password)
+    if (!formData.username || !formData.password)
       return toast.error('All fields are required');
     dispatch(authLogin({ formData, toast, navigate }));
   };
@@ -43,7 +44,7 @@ const Login = () => {
           <div>
             <input
               type='text'
-              name='email'
+              name='username'
               placeholder='email'
               className='border border-gray-300 placeholder:text-[12px] text-[12px] rounded w-full h-5 px-5 py-5 mt-2 hover:outline-none focus:outline-none focus:border-gray-600 focus:ring-blue '
               onChange={(e) => handleChange(e)}
